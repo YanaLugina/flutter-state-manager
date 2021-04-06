@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_state_manager/root_wg.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 void main() {
   runApp(MyApp());
@@ -30,12 +31,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  int get counterValue => _counter;
-
-  void incrementCounter() => setState(() =>  _counter++);
-  void decrementCounter() => setState(() => _counter--);
 
   @override
   Widget build(BuildContext context) {
@@ -46,33 +41,28 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: ListView(
         children: <Widget>[
-          MyInheritedWidget(
-            myState: this,
-            child: AppRootWidget(),
+          ScopedModel<MyModelState>(
+              model: MyModelState(),
+              child: AppRootWidget()
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
 
-class MyInheritedWidget extends InheritedWidget {
-  final _MyHomePageState myState;
+class MyModelState extends Model {
+  int _counter = 0;
 
-  MyInheritedWidget({Key? key, required Widget child, required this.myState})
-      : super(key: key, child: child);
+  int get counterValue => _counter;
 
-  @override
-  bool updateShouldNotify(MyInheritedWidget oldWidget) {
-    return this.myState.counterValue != oldWidget.myState.counterValue;
+  void incrementCounter(){
+    _counter++;
+    notifyListeners();
   }
 
-  static MyInheritedWidget? of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType();
+  void decrementCounter() {
+    _counter--;
+    notifyListeners();
   }
 }
